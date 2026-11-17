@@ -1,52 +1,387 @@
-ČAS DO DETONACIJE
-10:00
-1. POSTAJA: AKTIVACIJA PROTOKOLA
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROTOKOL OMEGA - Deaktivacija</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-main: #c9d1d9;
+            --danger: #ff3b30;
+            --success: #3fb950;
+            --accent: #58a6ff;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #timer-bar {
+            width: 100%;
+            max-width: 500px;
+            background-color: #210808;
+            border: 2px solid var(--danger);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            box-sizing: border-box;
+        }
+        #timer {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--danger);
+            letter-spacing: 3px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--card-bg);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            color: var(--accent);
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        p {
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        .btn {
+            background-color: var(--accent);
+            color: #0d1117;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-family: inherit;
+        }
+        .btn:disabled {
+            background-color: #30363d;
+            color: #8b949e;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+            background-color: #0d1117;
+            border: 1px solid var(--accent);
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+        .clue-box {
+            background-color: rgba(63, 185, 80, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+        .hidden { display: none; }
+        .visualizer {
+            height: 15px;
+            width: 100%;
+            background: #0d1117;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+        #mic-level {
+            height: 100%;
+            width: 0%;
+            background: var(--success);
+            transition: width 0.1s;
+        }
+        .debug-nav {
+            margin-top: 40px;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            text-align: center;
+        }
+        .debug-nav a { color: var(--accent); margin: 0 5px; }
+    </style>
+</head>
+<body>
 
-POZOR! V tem prostoru je bila aktivirana eksperimentalna naprava. Do detonacije imate natanko 10 minut.
+    <div id="timer-bar">
+        <div style="font-size: 0.8rem; color: #ff8b85;">ČAS DO DETONACIJE</div>
+        <div id="timer">10:00</div>
+    </div>
 
-Varnostni sistem je razbil kodo za deaktivacijo na štiri dele. Za reševanje iščite bele NFC točke v prostoru.
-------------------------------------
-UGANKA 1: Prvi del kode se skriva tam, kjer čas stoji, a kazalci še vedno kažejo pot. Poišči uro, ki kaže napačen čas, in poglej na njeno hrbtno stran.
-2. POSTAJA: ZVOČNA FREKVENCA
+    <div class="container">
+        <div id="station-1" class="station hidden">
+            <h2>1. POSTAJA: AKTIVACIJA PROTOKOLA</h2>
+            <p><strong>POZOR!</strong> V tem prostoru je bila aktivirana eksperimentalna naprava. Do detonacije imate natanko 10 minut.</p>
+            <p>Varnostni sistem je razbil kodo za deaktivacijo na <strong>štiri dele</strong>. Za reševanje iščite bele NFC točke v prostoru.</p>
+            <hr style="border-color: #30363d;">
+            <p><strong>UGANKA 1:</strong> Prvi del kode se skriva tam, kjer čas stoji, a kazalci še vedno kažejo pot. Poišči uro, ki kaže napačen čas, in poglej na njeno hrbtno stran.</p>
+        </div>
 
-Odlično, prvi sloj je prebit. Naprava se odziva na specifične akustične vibracije.
+        <div id="station-2" class="station hidden">
+            <h2>2. POSTAJA: ZVOČNA FREKVENCA</h2>
+            <p>Odlično, prvi sloj je prebit. Naprava se odziva na specifične akustične vibracije.</p>
+            <p><strong>UGANKA 2:</strong> Vzemi kitaro v kotu sobe. Sistem zahteva natančno zvočno frekvenco akorda <strong>D-dur</strong>. Pritisni spodnji gumb in zaigraj akord jasno ter glasno.</p>
+            
+            <button id="start-mic-btn" class="btn" onclick="startChordDetection()">VKLOPITE MIKROFON</button>
+            <div class="visualizer"><div id="mic-level"></div></div>
+            <p id="mic-status" style="font-size: 0.9rem; color: #8b949e; text-align: center;">Mikrofon je izklopljen.</p>
 
-UGANKA 2: Vzemi kitaro v kotu sobe. Sistem zahteva natančno zvočno frekvenco akorda D-dur. Pritisni spodnji gumb in zaigraj akord jasno ter glasno.
-VKLOPITE MIKROFON 
-Mikrofon je izklopljen.
-FREKVENCA POTRJENA!
-Druga številka kode je: 8
+            <div id="clue-2" class="clue-box">
+                <strong>FREKVENCA POTRJENA!</strong><br>
+                Druga številka kode je: <strong style="font-size: 1.5rem;">8</strong><br><br>
+                <em>Namig za naprej:</em> Naslednji NFC oddajnik se skriva pod znanjem, ki tehta največ. Poišči najdebelejšo knjigo na polici.
+            </div>
+        </div>
 
-Namig za naprej: Naslednji NFC oddajnik se skriva pod znanjem, ki tehta največ. Poišči najdebelejšo knjigo na polici. 
-3. POSTAJA: SKRITI VZOREC
+        <div id="station-3" class="station hidden">
+            <h2>3. POSTAJA: SKRITI VZOREC</h2>
+            <p>Čas neusmiljeno teče. Naprava je skrila svoje sledi pred navadnim očesom.</p>
+            <p><strong>UGANKA 3:</strong> V predalu pisalne mize je skrita UV-svetilka. Ugasni glavno luč v prostoru in z njo osvetli steno nasproti okna. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.</p>
+        </div>
 
-Čas neusmiljeno teče. Naprava je skrila svoje sledi pred navadnim očesom.
+        <div id="station-4" class="station hidden">
+            <h2>4. POSTAJA: LOGIČNA ZANKA</h2>
+            <p>Mehanski senzorji zaznavajo napačno obremenitev. Uravnovesite sistem pred zaklepom.</p>
+            <p><strong>UGANKA 4:</strong> Preštej vse stole v sobi (X) in jih pomnoži s številom oken (Y). Rezultat vpiši spodaj (privzeta rešitev za test: 8):</p>
+            
+            <input type="number" id="math-answer" placeholder="Vnesi rezultat...">
+            <button class="btn" onclick="checkMath()">POTRDI REZULTAT</button>
 
-UGANKA 3: V predalu pisalne mize je skrita UV-svetilka. Ugasni glavno luč v prostoru in z njo osvetli steno nasproti okna. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.
-4. POSTAJA: LOGIČNA ZANKA
+            <div id="clue-4" class="clue-box">
+                <strong>SENZORJI SO MIRNI!</strong><br>
+                Četrta številka kode je: <strong style="font-size: 1.5rem;">5</strong><br><br>
+                <em>Namig za naprej:</em> Zadnji ključ do deaktivacije je skrit tam, kjer se srečata toplo in hladno – preveri na vratih hladilnika ali ob radiatorju.
+            </div>
+        </div>
 
-Mehanski senzorji zaznavajo napačno obremenitev. Uravnovesite sistem pred zaklepom.
+        <div id="station-5" class="station hidden">
+            <h2>5. POSTAJA: KONČNA DEAKTIVACIJA</h2>
+            <p>Vse varnostne ovire so odstranjene! Vnesi 4-mestno kodo, ki si jo zbral na postajah od 1 do 4.</p>
+            
+            <input type="number" id="final-code" placeholder="****" maxlength="4">
+            <button class="btn btn-danger" onclick="checkFinalCode()">DEAKTIVIRAJ BOMBO</button>
+            <p id="code-error" style="color: var(--danger); display: none; text-align: center;">NAPAČNA KODA! POSKUSI ZNOVA!</p>
+        </div>
 
-UGANKA 4: Preštej vse stole v sobi (X) in jih pomnoži s številom oken (Y). Rezultat vpiši spodaj (privzeta rešitev za test: 8):
-POTRDI REZULTAT 
-SENZORJI SO MIRNI!
-Četrta številka kode je: 5
+        <div id="station-win" class="station hidden" style="text-align: center;">
+            <h2 style="color: var(--success);">NAPRAVA DEAKTIVIRANA!</h2>
+            <p>Čestitamo! Uspešno ste rešili prostor in sebe.</p>
+            <p>Vaš preostali čas: <strong id="final-time" style="font-size: 1.5rem; color: var(--success);"></strong></p>
+            <button class="btn" onclick="resetGame()">PONASTAVI IGRO</button>
+        </div>
 
-Namig za naprej: Zadnji ključ do deaktivacije je skrit tam, kjer se srečata toplo in hladno – preveri na vratih hladilnika ali ob radiatorju. 
-5. POSTAJA: KONČNA DEAKTIVACIJA
+        <div id="station-lose" class="station hidden" style="text-align: center;">
+            <h2 style="color: var(--danger);">DETONACIJA!</h2>
+            <p>Čas je potekel. Varnostni sistem je sprožil napravo.</p>
+            <button class="btn btn-danger" onclick="resetGame()">POSKUSI ZNOVA</button>
+        </div>
+    </div>
 
-Vse varnostne ovire so odstranjene! Vnesi 4-mestno kodo, ki si jo zbral na postajah od 1 do 4.
-DEAKTIVIRAJ BOMBO 
+    <div class="debug-nav">
+        Testiranje postaj: 
+        <a href="?postaja=1">1</a> | 
+        <a href="?postaja=2">2</a> | 
+        <a href="?postaja=3">3</a> | 
+        <a href="?postaja=4">4</a> | 
+        <a href="?postaja=5">5</a> | 
+        <a href="#" onclick="resetGame(); return false;">Reset časa</a>
+    </div>
 
-NAPAČNA KODA! POSKUSI ZNOVA!
-NAPRAVA DEAKTIVIRANA!
+<script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const station = urlParams.get('postaja') || '1';
+    
+    document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+    const activeEl = document.getElementById('station-' + station);
+    if (activeEl) activeEl.classList.remove('hidden');
 
-Čestitamo! Uspešno ste rešili prostor in sebe.
+    const GAME_DURATION = 600 * 1000;
+    let timerInterval;
 
-Vaš preostali čas: 
-PONASTAVI IGRO 
-DETONACIJA!
+    function updateTimerDisplay(endTime) {
+        const now = Date.now();
+        const remaining = endTime - now;
 
-Čas je potekel. Varnostni sistem je sprožil napravo.
-POSKUSI ZNOVA 
-Testiranje postaj: {1} | {2} | {3} | {4} | {5} | {Reset časa} 
+        if (remaining <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('timer').innerText = "00:00";
+            document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+            document.getElementById('station-lose').classList.remove('hidden');
+        } else {
+            const minutes = Math.floor(remaining / 60000);
+            const seconds = Math.floor((remaining % 60000) / 1000);
+            document.getElementById('timer').innerText = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+    }
+
+    function initTimer() {
+        if (localStorage.getItem('bombDefused') === 'true') {
+            showWinScreen(localStorage.getItem('savedTime'));
+            return;
+        }
+
+        let endTime = localStorage.getItem('bombEndTime');
+        
+        if (!endTime || (station === '1' && !sessionStorage.getItem('started'))) {
+            endTime = Date.now() + GAME_DURATION;
+            localStorage.setItem('bombEndTime', endTime);
+            sessionStorage.setItem('started', 'true');
+        }
+
+        updateTimerDisplay(Number(endTime));
+        timerInterval = setInterval(() => updateTimerDisplay(Number(endTime)), 250);
+    }
+
+    function resetGame() {
+        localStorage.removeItem('bombEndTime');
+        localStorage.removeItem('bombDefused');
+        localStorage.removeItem('savedTime');
+        sessionStorage.removeItem('started');
+        window.location.href = window.location.pathname + "?postaja=1";
+    }
+
+    initTimer();
+
+    function checkMath() {
+        const ans = document.getElementById('math-answer').value.trim();
+        if (ans === '8') {
+            document.getElementById('clue-4').style.display = 'block';
+        } else {
+            alert("Napačen izračun! Preštej znova.");
+        }
+    }
+
+    function checkFinalCode() {
+        const code = document.getElementById('final-code').value.trim();
+        if (code === '4815') {
+            clearInterval(timerInterval);
+            const savedTime = document.getElementById('timer').innerText;
+            localStorage.setItem('bombDefused', 'true');
+            localStorage.setItem('savedTime', savedTime);
+            showWinScreen(savedTime);
+        } else {
+            document.getElementById('code-error').style.display = 'block';
+        }
+    }
+
+    function showWinScreen(timeStr) {
+        document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+        document.getElementById('station-win').classList.remove('hidden');
+        document.getElementById('timer-bar').style.borderColor = 'var(--success)';
+        document.getElementById('timer').style.color = 'var(--success)';
+        document.getElementById('timer').innerText = timeStr;
+        document.getElementById('final-time').innerText = timeStr;
+    }
+
+    let audioContext;
+    let analyser;
+    let microphone;
+    let isListening = false;
+    let matchCounter = 0;
+
+    async function startChordDetection() {
+        const btn = document.getElementById('start-mic-btn');
+        const status = document.getElementById('mic-status');
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 8192;
+            
+            microphone = audioContext.createMediaStreamSource(stream);
+            microphone.connect(analyser);
+            
+            isListening = true;
+            btn.disabled = true;
+            btn.innerText = "POSLUŠAM KITARO...";
+            status.innerText = "Zaigraj D-dur akord blizu telefona!";
+            status.style.color = "var(--accent)";
+            
+            detectFrequencies();
+        } catch (err) {
+            status.innerText = "Napaka: Dostop do mikrofona je zavrnjen ali ni HTTPS povezave.";
+            status.style.color = "var(--danger)";
+        }
+    }
+
+    function detectFrequencies() {
+        if (!isListening) return;
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteFrequencyData(dataArray);
+
+        const sampleRate = audioContext.sampleRate;
+        const binSize = sampleRate / analyser.fftSize;
+
+        function getEnergyAtFreq(targetFreq) {
+            const minBin = Math.floor((targetFreq - 4) / binSize);
+            const maxBin = Math.ceil((targetFreq + 4) / binSize);
+            let maxVal = 0;
+            for (let i = minBin; i <= maxBin; i++) {
+                if (dataArray[i] > maxVal) maxVal = dataArray[i];
+            }
+            return maxVal;
+        }
+
+        const d3 = getEnergyAtFreq(146.83);
+        const a3 = getEnergyAtFreq(220.00);
+        const d4 = getEnergyAtFreq(293.66);
+        const fs4 = getEnergyAtFreq(369.99);
+
+        const avgEnergy = (d3 + a3 + d4 + fs4) / 4;
+        document.getElementById('mic-level').style.width = Math.min(100, (avgEnergy / 200) * 100) + '%';
+
+        if (d3 > 130 && a3 > 130 && (d4 > 120 || fs4 > 120)) {
+            matchCounter++;
+            if (matchCounter > 15) {
+                isListening = false;
+                document.getElementById('mic-status').innerText = "Akord D-dur uspešno zaznan!";
+                document.getElementById('mic-status').style.color = "var(--success)";
+                document.getElementById('clue-2').style.display = 'block';
+                audioContext.close();
+                return;
+            }
+        } else {
+            matchCounter = Math.max(0, matchCounter - 1);
+        }
+
+        requestAnimationFrame(detectFrequencies);
+    }
+</script>
+
+</body>
+</html>
