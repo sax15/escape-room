@@ -36,9 +36,9 @@
             position: sticky;
             top: 10px;
             z-index: 100;
+            cursor: pointer;
             user-select: none;
             -webkit-user-select: none;
-            cursor: pointer;
         }
         #timer {
             font-size: 3rem;
@@ -91,12 +91,12 @@
             background-color: transparent;
             color: #8b949e;
             border: 1px solid #30363d;
-            padding: 12px 15px;
-            font-size: 0.95rem;
+            padding: 10px 15px;
+            font-size: 0.9rem;
             margin-top: 25px;
         }
-        .btn-back:active {
-            background-color: #21262d;
+        .btn-back:hover {
+            border-color: var(--accent);
             color: var(--text-main);
         }
         input[type="text"], input[type="number"] {
@@ -121,7 +121,7 @@
             margin-top: 20px;
             display: none;
         }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         .visualizer {
             height: 15px;
             width: 100%;
@@ -141,7 +141,7 @@
 </head>
 <body>
 
-    <div id="timer-bar" title="Trojni klik za ponastavitev igre">
+    <div id="timer-bar" onclick="handleSecretReset()" title="Trojni klik za ponastavitev">
         <div style="font-size: 0.8rem; color: #ff8b85;">ČAS DO DETONACIJE</div>
         <div id="timer">10:00</div>
     </div>
@@ -231,9 +231,8 @@
 
 <script>
     // --- 0. ZVOČNI UČINKI (WEB AUDIO API) ---
-    let sfxCtx = null;
-
-    function getSfxContext() {
+    let sfxCtx;
+    function getSfxCtx() {
         if (!sfxCtx) {
             sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -243,66 +242,50 @@
         return sfxCtx;
     }
 
-    ['touchstart', 'click'].forEach(evt => {
-        document.addEventListener(evt, () => {
-            try { getSfxContext(); } catch (e) {}
-        }, { once: true });
-    });
+    document.addEventListener('pointerdown', () => { getSfxCtx(); }, { once: true });
 
-    function playTone(freq, duration, type = 'sine', volume = 0.15, delay = 0) {
+    function playTone(freq, type, duration, vol = 0.15, delay = 0) {
         try {
-            const ctx = getSfxContext();
+            const ctx = getSfxCtx();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
-            
             osc.type = type;
             osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
-            
-            gain.gain.setValueAtTime(volume, ctx.currentTime + delay);
+            gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
-            
             osc.connect(gain);
             gain.connect(ctx.destination);
-            
             osc.start(ctx.currentTime + delay);
             osc.stop(ctx.currentTime + delay + duration);
         } catch (e) {}
     }
 
-    function playBeep(urgent = false) {
-        if (urgent) {
-            playTone(1200, 0.08, 'square', 0.12);
-        } else {
-            playTone(880, 0.06, 'sine', 0.08);
-        }
+    function playTick(urgent = false) {
+        playTone(urgent ? 1200 : 850, 'sine', 0.06, urgent ? 0.18 : 0.08);
     }
 
-    function playSuccessChime() {
-        playTone(523.25, 0.15, 'triangle', 0.2, 0);
-        playTone(659.25, 0.15, 'triangle', 0.2, 0.12);
-        playTone(783.99, 0.35, 'triangle', 0.25, 0.24);
+    function playSuccess() {
+        playTone(523.25, 'triangle', 0.25, 0.2, 0);
+        playTone(659.25, 'triangle', 0.25, 0.2, 0.12);
+        playTone(783.99, 'triangle', 0.4, 0.25, 0.24);
     }
 
-    function playErrorBuzz() {
-        playTone(150, 0.2, 'sawtooth', 0.2, 0);
-        playTone(130, 0.3, 'sawtooth', 0.2, 0.15);
+    function playError() {
+        playTone(180, 'sawtooth', 0.35, 0.2, 0);
     }
 
     function playWinFanfare() {
         const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((freq, i) => {
-            playTone(freq, i === 3 ? 0.6 : 0.15, 'triangle', 0.25, i * 0.14);
-        });
+        notes.forEach((f, idx) => playTone(f, 'triangle', 0.4, 0.25, idx * 0.15));
     }
 
-    function playExplosionAlarm() {
-        for (let i = 0; i < 4; i++) {
-            playTone(900, 0.12, 'sawtooth', 0.25, i * 0.25);
-            playTone(600, 0.12, 'sawtooth', 0.25, i * 0.25 + 0.12);
-        }
+    function playExplosion() {
         try {
-            const ctx = getSfxContext();
-            const bufferSize = ctx.sampleRate * 1.5;
+            const ctx = getSfxCtx();
+            for (let i = 0; i < 3; i++) {
+                playTone(900, 'sawtooth', 0.18, 0.25, i * 0.22);
+            }
+            const bufferSize = ctx.sampleRate * 2.0;
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
@@ -313,18 +296,17 @@
 
             const filter = ctx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(400, ctx.currentTime + 1.0);
-            filter.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 2.5);
+            filter.frequency.setValueAtTime(350, ctx.currentTime + 0.65);
+            filter.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 2.6);
 
             const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.5, ctx.currentTime + 1.0);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+            gain.gain.setValueAtTime(0.6, ctx.currentTime + 0.65);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.6);
 
             noise.connect(filter);
             filter.connect(gain);
             gain.connect(ctx.destination);
-
-            noise.start(ctx.currentTime + 1.0);
+            noise.start(ctx.currentTime + 0.65);
         } catch (e) {}
     }
 
@@ -347,23 +329,18 @@
     // --- 2. SKRITA PONASTAVITEV (TROJNI KLIK NA ODŠTEVALNIK) ---
     let tapCount = 0;
     let tapTimeout;
-    const timerBar = document.getElementById('timer-bar');
-
-    timerBar.addEventListener('click', () => {
+    function handleSecretReset() {
         tapCount++;
         clearTimeout(tapTimeout);
-        
         if (tapCount >= 3) {
             tapCount = 0;
-            if (confirm("SKRITI MENI: Ali želite ponastaviti igro in čas nazaj na 10:00?")) {
+            if (confirm("SKRITI MENI: Ponastavim igro in čas nazaj na 10:00?")) {
                 resetGame();
             }
         } else {
-            tapTimeout = setTimeout(() => {
-                tapCount = 0;
-            }, 800);
+            tapTimeout = setTimeout(() => { tapCount = 0; }, 800);
         }
-    });
+    }
 
     // --- 3. ODŠTEVALNIK ČASA (10 MINUT = 600 SEKUND) ---
     const GAME_DURATION = 600 * 1000;
@@ -393,7 +370,7 @@
                 document.getElementById('timer').innerText = "00:00";
                 document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
                 document.getElementById('station-lose').classList.remove('hidden');
-                playExplosionAlarm();
+                playExplosion();
             } else {
                 const totalSeconds = Math.ceil(remaining / 1000);
                 const minutes = Math.floor(remaining / 60000);
@@ -401,18 +378,19 @@
                 document.getElementById('timer').innerText = 
                     `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                if (totalSeconds <= 10) {
-                    const halfSec = Math.floor(remaining / 500);
-                    if (halfSec !== lastBeepSecond) {
-                        lastBeepSecond = halfSec;
-                        playBeep(true);
-                    }
-                } else if (totalSeconds !== lastBeepSecond) {
+                if (totalSeconds !== lastBeepSecond) {
                     lastBeepSecond = totalSeconds;
-                    playBeep(totalSeconds <= 60);
+                    if (totalSeconds <= 10) {
+                        playTick(true);
+                        setTimeout(() => playTick(true), 450);
+                    } else if (totalSeconds <= 60) {
+                        playTick(true);
+                    } else {
+                        playTick(false);
+                    }
                 }
             }
-        }, 100);
+        }, 200);
     }
 
     function resetGame() {
@@ -429,10 +407,10 @@
     function checkMath() {
         const ans = document.getElementById('math-answer').value;
         if (ans === '8') {
-            playSuccessChime();
+            playSuccess();
             document.getElementById('clue-4').style.display = 'block';
         } else {
-            playErrorBuzz();
+            playError();
             alert("Napačen izračun! Preštej znova.");
         }
     }
@@ -441,13 +419,13 @@
         const code = document.getElementById('final-code').value;
         if (code === '4815') {
             clearInterval(timerInterval);
+            playWinFanfare();
             const savedTime = document.getElementById('timer').innerText;
             localStorage.setItem('bombDefused', 'true');
             localStorage.setItem('savedTime', savedTime);
-            playWinFanfare();
             showWinScreen(savedTime);
         } else {
-            playErrorBuzz();
+            playError();
             document.getElementById('code-error').style.display = 'block';
         }
     }
@@ -489,7 +467,7 @@
             
             detectFrequencies();
         } catch (err) {
-            playErrorBuzz();
+            playError();
             status.innerText = "Napaka: Dostop do mikrofona je zavrnjen ali ni HTTPS povezave.";
             status.style.color = "var(--danger)";
         }
@@ -527,7 +505,7 @@
             matchCounter++;
             if (matchCounter > 15) {
                 isListening = false;
-                playSuccessChime();
+                playSuccess();
                 document.getElementById('mic-status').innerText = "Akord D-dur uspešno zaznan!";
                 document.getElementById('mic-status').style.color = "var(--success)";
                 document.getElementById('clue-2').style.display = 'block';
