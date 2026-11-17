@@ -36,7 +36,9 @@
             position: sticky;
             top: 10px;
             z-index: 100;
-            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
         }
         #timer {
             font-size: 3rem;
@@ -85,6 +87,18 @@
             background-color: var(--danger);
             color: white;
         }
+        .btn-back {
+            background-color: transparent;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+            margin-top: 25px;
+        }
+        .btn-back:active {
+            background-color: #21262d;
+            color: var(--text-main);
+        }
         input[type="text"], input[type="number"] {
             width: 100%;
             padding: 15px;
@@ -123,23 +137,17 @@
             background: var(--success);
             transition: width 0.1s;
         }
-        .debug-nav {
-            margin-top: 40px;
-            font-size: 0.8rem;
-            opacity: 0.6;
-            text-align: center;
-        }
-        .debug-nav a { color: var(--accent); margin: 0 5px; }
     </style>
 </head>
 <body>
 
-    <div id="timer-bar">
+    <div id="timer-bar" title="Trojni klik za ponastavitev igre">
         <div style="font-size: 0.8rem; color: #ff8b85;">ČAS DO DETONACIJE</div>
         <div id="timer">10:00</div>
     </div>
 
     <div class="container">
+        <!-- POSTAJA 1 -->
         <div id="station-1" class="station hidden">
             <h2>1. POSTAJA: AKTIVACIJA PROTOKOLA</h2>
             <p><strong>POZOR!</strong> V tem prostoru je bila aktivirana eksperimentalna naprava. Do detonacije imate natanko 10 minut.</p>
@@ -148,6 +156,7 @@
             <p><strong>UGANKA 1:</strong> Prvi del kode se skriva tam, kjer čas stoji, a kazalci še vedno kažejo pot. Poišči uro, ki kaže napačen čas, in poglej na njeno hrbtno stran.</p>
         </div>
 
+        <!-- POSTAJA 2 (KITARA) -->
         <div id="station-2" class="station hidden">
             <h2>2. POSTAJA: ZVOČNA FREKVENCA</h2>
             <p>Odlično, prvi sloj je prebit. Naprava se odziva na specifične akustične vibracije.</p>
@@ -162,18 +171,24 @@
                 Druga številka kode je: <strong style="font-size: 1.5rem;">8</strong><br><br>
                 <em>Namig za naprej:</em> Naslednji NFC oddajnik se skriva pod znanjem, ki tehta največ. Poišči najdebelejšo knjigo na polici.
             </div>
+
+            <button class="btn btn-back" onclick="goBack(1)">← NAZAJ NA 1. POSTAJO</button>
         </div>
 
+        <!-- POSTAJA 3 -->
         <div id="station-3" class="station hidden">
             <h2>3. POSTAJA: SKRITI VZOREC</h2>
             <p>Čas neusmiljeno teče. Naprava je skrila svoje sledi pred navadnim očesom.</p>
             <p><strong>UGANKA 3:</strong> V predalu pisalne mize je skrita UV-svetilka. Ugasni glavno luč v prostoru in z njo osvetli steno nasproti okna. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.</p>
+
+            <button class="btn btn-back" onclick="goBack(2)">← NAZAJ NA 2. POSTAJO</button>
         </div>
 
+        <!-- POSTAJA 4 -->
         <div id="station-4" class="station hidden">
             <h2>4. POSTAJA: LOGIČNA ZANKA</h2>
             <p>Mehanski senzorji zaznavajo napačno obremenitev. Uravnovesite sistem pred zaklepom.</p>
-            <p><strong>UGANKA 4:</strong> Preštej vse stole v sobi (X) in jih pomnoži s številom oken (Y). Rezultat vpiši spodaj (privzeta rešitev za test: 8):</p>
+            <p><strong>UGANKA 4:</strong> Preštej vse stole v sobi (X) in jih pomnoži s številom oken (Y). Rezultat vpiši spodaj:</p>
             
             <input type="number" id="math-answer" placeholder="Vnesi rezultat...">
             <button class="btn" onclick="checkMath()">POTRDI REZULTAT</button>
@@ -183,8 +198,11 @@
                 Četrta številka kode je: <strong style="font-size: 1.5rem;">5</strong><br><br>
                 <em>Namig za naprej:</em> Zadnji ključ do deaktivacije je skrit tam, kjer se srečata toplo in hladno – preveri na vratih hladilnika ali ob radiatorju.
             </div>
+
+            <button class="btn btn-back" onclick="goBack(3)">← NAZAJ NA 3. POSTAJO</button>
         </div>
 
+        <!-- POSTAJA 5 -->
         <div id="station-5" class="station hidden">
             <h2>5. POSTAJA: KONČNA DEAKTIVACIJA</h2>
             <p>Vse varnostne ovire so odstranjene! Vnesi 4-mestno kodo, ki si jo zbral na postajah od 1 do 4.</p>
@@ -192,8 +210,11 @@
             <input type="number" id="final-code" placeholder="****" maxlength="4">
             <button class="btn btn-danger" onclick="checkFinalCode()">DEAKTIVIRAJ BOMBO</button>
             <p id="code-error" style="color: var(--danger); display: none; text-align: center;">NAPAČNA KODA! POSKUSI ZNOVA!</p>
+
+            <button class="btn btn-back" onclick="goBack(4)">← NAZAJ NA 4. POSTAJO</button>
         </div>
 
+        <!-- ZMAGA / PORAZ -->
         <div id="station-win" class="station hidden" style="text-align: center;">
             <h2 style="color: var(--success);">NAPRAVA DEAKTIVIRANA!</h2>
             <p>Čestitamo! Uspešno ste rešili prostor in sebe.</p>
@@ -208,17 +229,106 @@
         </div>
     </div>
 
-    <div class="debug-nav">
-        Testiranje postaj: 
-        <a href="?postaja=1">1</a> | 
-        <a href="?postaja=2">2</a> | 
-        <a href="?postaja=3">3</a> | 
-        <a href="?postaja=4">4</a> | 
-        <a href="?postaja=5">5</a> | 
-        <a href="#" onclick="resetGame(); return false;">Reset časa</a>
-    </div>
-
 <script>
+    // --- 0. ZVOČNI UČINKI (WEB AUDIO API) ---
+    let sfxCtx = null;
+
+    function getSfxContext() {
+        if (!sfxCtx) {
+            sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (sfxCtx.state === 'suspended') {
+            sfxCtx.resume();
+        }
+        return sfxCtx;
+    }
+
+    ['touchstart', 'click'].forEach(evt => {
+        document.addEventListener(evt, () => {
+            try { getSfxContext(); } catch (e) {}
+        }, { once: true });
+    });
+
+    function playTone(freq, duration, type = 'sine', volume = 0.15, delay = 0) {
+        try {
+            const ctx = getSfxContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+            
+            gain.gain.setValueAtTime(volume, ctx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(ctx.currentTime + delay);
+            osc.stop(ctx.currentTime + delay + duration);
+        } catch (e) {}
+    }
+
+    function playBeep(urgent = false) {
+        if (urgent) {
+            playTone(1200, 0.08, 'square', 0.12);
+        } else {
+            playTone(880, 0.06, 'sine', 0.08);
+        }
+    }
+
+    function playSuccessChime() {
+        playTone(523.25, 0.15, 'triangle', 0.2, 0);
+        playTone(659.25, 0.15, 'triangle', 0.2, 0.12);
+        playTone(783.99, 0.35, 'triangle', 0.25, 0.24);
+    }
+
+    function playErrorBuzz() {
+        playTone(150, 0.2, 'sawtooth', 0.2, 0);
+        playTone(130, 0.3, 'sawtooth', 0.2, 0.15);
+    }
+
+    function playWinFanfare() {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((freq, i) => {
+            playTone(freq, i === 3 ? 0.6 : 0.15, 'triangle', 0.25, i * 0.14);
+        });
+    }
+
+    function playExplosionAlarm() {
+        for (let i = 0; i < 4; i++) {
+            playTone(900, 0.12, 'sawtooth', 0.25, i * 0.25);
+            playTone(600, 0.12, 'sawtooth', 0.25, i * 0.25 + 0.12);
+        }
+        try {
+            const ctx = getSfxContext();
+            const bufferSize = ctx.sampleRate * 1.5;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(400, ctx.currentTime + 1.0);
+            filter.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 2.5);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.5, ctx.currentTime + 1.0);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.5);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            noise.start(ctx.currentTime + 1.0);
+        } catch (e) {}
+    }
+
+    // --- 1. UPRAVLJANJE POSTAJ PREK URL PARAMETRA ---
     const urlParams = new URLSearchParams(window.location.search);
     const station = urlParams.get('postaja') || '1';
     
@@ -226,25 +336,39 @@
     const activeEl = document.getElementById('station-' + station);
     if (activeEl) activeEl.classList.remove('hidden');
 
+    function goBack(targetStation) {
+        if (audioContext && audioContext.state !== 'closed') {
+            isListening = false;
+            audioContext.close();
+        }
+        window.location.href = window.location.pathname + "?postaja=" + targetStation;
+    }
+
+    // --- 2. SKRITA PONASTAVITEV (TROJNI KLIK NA ODŠTEVALNIK) ---
+    let tapCount = 0;
+    let tapTimeout;
+    const timerBar = document.getElementById('timer-bar');
+
+    timerBar.addEventListener('click', () => {
+        tapCount++;
+        clearTimeout(tapTimeout);
+        
+        if (tapCount >= 3) {
+            tapCount = 0;
+            if (confirm("SKRITI MENI: Ali želite ponastaviti igro in čas nazaj na 10:00?")) {
+                resetGame();
+            }
+        } else {
+            tapTimeout = setTimeout(() => {
+                tapCount = 0;
+            }, 800);
+        }
+    });
+
+    // --- 3. ODŠTEVALNIK ČASA (10 MINUT = 600 SEKUND) ---
     const GAME_DURATION = 600 * 1000;
     let timerInterval;
-
-    function updateTimerDisplay(endTime) {
-        const now = Date.now();
-        const remaining = endTime - now;
-
-        if (remaining <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById('timer').innerText = "00:00";
-            document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
-            document.getElementById('station-lose').classList.remove('hidden');
-        } else {
-            const minutes = Math.floor(remaining / 60000);
-            const seconds = Math.floor((remaining % 60000) / 1000);
-            document.getElementById('timer').innerText = 
-                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        }
-    }
+    let lastBeepSecond = -1;
 
     function initTimer() {
         if (localStorage.getItem('bombDefused') === 'true') {
@@ -260,8 +384,35 @@
             sessionStorage.setItem('started', 'true');
         }
 
-        updateTimerDisplay(Number(endTime));
-        timerInterval = setInterval(() => updateTimerDisplay(Number(endTime)), 250);
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const remaining = endTime - now;
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer').innerText = "00:00";
+                document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+                document.getElementById('station-lose').classList.remove('hidden');
+                playExplosionAlarm();
+            } else {
+                const totalSeconds = Math.ceil(remaining / 1000);
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                document.getElementById('timer').innerText = 
+                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (totalSeconds <= 10) {
+                    const halfSec = Math.floor(remaining / 500);
+                    if (halfSec !== lastBeepSecond) {
+                        lastBeepSecond = halfSec;
+                        playBeep(true);
+                    }
+                } else if (totalSeconds !== lastBeepSecond) {
+                    lastBeepSecond = totalSeconds;
+                    playBeep(totalSeconds <= 60);
+                }
+            }
+        }, 100);
     }
 
     function resetGame() {
@@ -274,24 +425,29 @@
 
     initTimer();
 
+    // --- 4. LOGIKA ZA 4. IN 5. POSTAJO ---
     function checkMath() {
-        const ans = document.getElementById('math-answer').value.trim();
+        const ans = document.getElementById('math-answer').value;
         if (ans === '8') {
+            playSuccessChime();
             document.getElementById('clue-4').style.display = 'block';
         } else {
+            playErrorBuzz();
             alert("Napačen izračun! Preštej znova.");
         }
     }
 
     function checkFinalCode() {
-        const code = document.getElementById('final-code').value.trim();
+        const code = document.getElementById('final-code').value;
         if (code === '4815') {
             clearInterval(timerInterval);
             const savedTime = document.getElementById('timer').innerText;
             localStorage.setItem('bombDefused', 'true');
             localStorage.setItem('savedTime', savedTime);
+            playWinFanfare();
             showWinScreen(savedTime);
         } else {
+            playErrorBuzz();
             document.getElementById('code-error').style.display = 'block';
         }
     }
@@ -305,6 +461,7 @@
         document.getElementById('final-time').innerText = timeStr;
     }
 
+    // --- 5. PREPOZNAVA D-DUR AKORDA PREK MIKROFONA (WEB AUDIO API) ---
     let audioContext;
     let analyser;
     let microphone;
@@ -332,6 +489,7 @@
             
             detectFrequencies();
         } catch (err) {
+            playErrorBuzz();
             status.innerText = "Napaka: Dostop do mikrofona je zavrnjen ali ni HTTPS povezave.";
             status.style.color = "var(--danger)";
         }
@@ -369,6 +527,7 @@
             matchCounter++;
             if (matchCounter > 15) {
                 isListening = false;
+                playSuccessChime();
                 document.getElementById('mic-status').innerText = "Akord D-dur uspešno zaznan!";
                 document.getElementById('mic-status').style.color = "var(--success)";
                 document.getElementById('clue-2').style.display = 'block';
