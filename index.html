@@ -36,9 +36,8 @@
             position: sticky;
             top: 10px;
             z-index: 100;
-            cursor: pointer;
             user-select: none;
-            -webkit-user-select: none;
+            cursor: pointer;
         }
         #timer {
             font-size: 3rem;
@@ -96,8 +95,8 @@
             margin-top: 25px;
         }
         .btn-back:hover {
-            border-color: var(--accent);
             color: var(--text-main);
+            border-color: #8b949e;
         }
         input[type="text"], input[type="number"] {
             width: 100%;
@@ -121,7 +120,7 @@
             margin-top: 20px;
             display: none;
         }
-        .hidden { display: none !important; }
+        .hidden { display: none; }
         .visualizer {
             height: 15px;
             width: 100%;
@@ -137,11 +136,33 @@
             background: var(--success);
             transition: width 0.1s;
         }
+        .note-indicators {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 8px;
+        }
+        .note-badge {
+            flex: 1;
+            text-align: center;
+            padding: 6px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+        .note-badge.active {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(63, 185, 80, 0.15);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
-    <div id="timer-bar" onclick="handleSecretReset()" title="Trojni klik za ponastavitev">
+    <div id="timer-bar" title="Triklik za ponastavitev">
         <div style="font-size: 0.8rem; color: #ff8b85;">ČAS DO DETONACIJE</div>
         <div id="timer">10:00</div>
     </div>
@@ -164,6 +185,11 @@
             
             <button id="start-mic-btn" class="btn" onclick="startChordDetection()">VKLOPITE MIKROFON</button>
             <div class="visualizer"><div id="mic-level"></div></div>
+            <div class="note-indicators">
+                <div id="badge-d" class="note-badge">Ton D</div>
+                <div id="badge-a" class="note-badge">Ton A</div>
+                <div id="badge-fs" class="note-badge">Ton F#</div>
+            </div>
             <p id="mic-status" style="font-size: 0.9rem; color: #8b949e; text-align: center;">Mikrofon je izklopljen.</p>
 
             <div id="clue-2" class="clue-box">
@@ -172,16 +198,16 @@
                 <em>Namig za naprej:</em> Naslednji NFC oddajnik se skriva pod znanjem, ki tehta največ. Poišči najdebelejšo knjigo na polici.
             </div>
 
-            <button class="btn btn-back" onclick="goBack(1)">← NAZAJ NA 1. POSTAJO</button>
+            <button class="btn btn-back" onclick="goBack('1')">← NAZAJ NA 1. POSTAJO</button>
         </div>
 
         <!-- POSTAJA 3 -->
         <div id="station-3" class="station hidden">
             <h2>3. POSTAJA: SKRITI VZOREC</h2>
             <p>Čas neusmiljeno teče. Naprava je skrila svoje sledi pred navadnim očesom.</p>
-            <p><strong>UGANKA 3:</strong> V škatli na omari je skrita UV-svetilka. Ugasni luč v prostoru in z njo osvetli listek na steni spalnice. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.</p>
+            <p><strong>UGANKA 3:</strong> V predalu pisalne mize je skrita UV-svetilka. Ugasni glavno luč v prostoru in z njo osvetli steno nasproti okna. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.</p>
 
-            <button class="btn btn-back" onclick="goBack(2)">← NAZAJ NA 2. POSTAJO</button>
+            <button class="btn btn-back" onclick="goBack('2')">← NAZAJ NA 2. POSTAJO</button>
         </div>
 
         <!-- POSTAJA 4 -->
@@ -199,7 +225,7 @@
                 <em>Namig za naprej:</em> Zadnji ključ do deaktivacije je skrit tam, kjer se srečata toplo in hladno – preveri na vratih hladilnika ali ob radiatorju.
             </div>
 
-            <button class="btn btn-back" onclick="goBack(3)">← NAZAJ NA 3. POSTAJO</button>
+            <button class="btn btn-back" onclick="goBack('3')">← NAZAJ NA 3. POSTAJO</button>
         </div>
 
         <!-- POSTAJA 5 -->
@@ -211,7 +237,7 @@
             <button class="btn btn-danger" onclick="checkFinalCode()">DEAKTIVIRAJ BOMBO</button>
             <p id="code-error" style="color: var(--danger); display: none; text-align: center;">NAPAČNA KODA! POSKUSI ZNOVA!</p>
 
-            <button class="btn btn-back" onclick="goBack(4)">← NAZAJ NA 4. POSTAJO</button>
+            <button class="btn btn-back" onclick="goBack('4')">← NAZAJ NA 4. POSTAJO</button>
         </div>
 
         <!-- ZMAGA / PORAZ -->
@@ -230,9 +256,10 @@
     </div>
 
 <script>
-    // --- 0. ZVOČNI UČINKI (WEB AUDIO API) ---
-    let sfxCtx;
-    function getSfxCtx() {
+    // --- ZVOČNI UČINKI (WEB AUDIO API) ---
+    let sfxCtx = null;
+
+    function getSfxContext() {
         if (!sfxCtx) {
             sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
@@ -242,50 +269,57 @@
         return sfxCtx;
     }
 
-    document.addEventListener('pointerdown', () => { getSfxCtx(); }, { once: true });
+    document.addEventListener('touchstart', getSfxContext, { once: true });
+    document.addEventListener('click', getSfxContext, { once: true });
 
     function playTone(freq, type, duration, vol = 0.15, delay = 0) {
         try {
-            const ctx = getSfxCtx();
+            const ctx = getSfxContext();
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = type;
             osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+            
             gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
             gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+            
             osc.connect(gain);
             gain.connect(ctx.destination);
+            
             osc.start(ctx.currentTime + delay);
             osc.stop(ctx.currentTime + delay + duration);
         } catch (e) {}
     }
 
-    function playTick(urgent = false) {
-        playTone(urgent ? 1200 : 850, 'sine', 0.06, urgent ? 0.18 : 0.08);
+    function playTick(isUrgent) {
+        playTone(isUrgent ? 1200 : 880, 'sine', 0.06, isUrgent ? 0.18 : 0.08);
     }
 
-    function playSuccess() {
+    function playSuccessSound() {
         playTone(523.25, 'triangle', 0.25, 0.2, 0);
         playTone(659.25, 'triangle', 0.25, 0.2, 0.12);
-        playTone(783.99, 'triangle', 0.4, 0.25, 0.24);
+        playTone(783.99, 'triangle', 0.4, 0.2, 0.24);
     }
 
-    function playError() {
-        playTone(180, 'sawtooth', 0.35, 0.2, 0);
+    function playErrorSound() {
+        playTone(180, 'sawtooth', 0.2, 0.2, 0);
+        playTone(140, 'sawtooth', 0.35, 0.2, 0.18);
     }
 
     function playWinFanfare() {
         const notes = [523.25, 659.25, 783.99, 1046.50];
-        notes.forEach((f, idx) => playTone(f, 'triangle', 0.4, 0.25, idx * 0.15));
+        notes.forEach((n, idx) => {
+            playTone(n, 'triangle', 0.45, 0.22, idx * 0.15);
+        });
     }
 
-    function playExplosion() {
+    function playExplosionSound() {
         try {
-            const ctx = getSfxCtx();
-            for (let i = 0; i < 3; i++) {
-                playTone(900, 'sawtooth', 0.18, 0.25, i * 0.22);
-            }
-            const bufferSize = ctx.sampleRate * 2.0;
+            const ctx = getSfxContext();
+            playTone(600, 'sawtooth', 0.3, 0.25, 0);
+            playTone(400, 'sawtooth', 0.3, 0.25, 0.3);
+
+            const bufferSize = ctx.sampleRate * 1.8;
             const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
             const data = buffer.getChannelData(0);
             for (let i = 0; i < bufferSize; i++) {
@@ -296,17 +330,18 @@
 
             const filter = ctx.createBiquadFilter();
             filter.type = 'lowpass';
-            filter.frequency.setValueAtTime(350, ctx.currentTime + 0.65);
-            filter.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 2.6);
+            filter.frequency.setValueAtTime(600, ctx.currentTime + 0.6);
+            filter.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 2.3);
 
             const gain = ctx.createGain();
-            gain.gain.setValueAtTime(0.6, ctx.currentTime + 0.65);
-            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.6);
+            gain.gain.setValueAtTime(0.6, ctx.currentTime + 0.6);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.4);
 
             noise.connect(filter);
             filter.connect(gain);
             gain.connect(ctx.destination);
-            noise.start(ctx.currentTime + 0.65);
+
+            noise.start(ctx.currentTime + 0.6);
         } catch (e) {}
     }
 
@@ -319,33 +354,17 @@
     if (activeEl) activeEl.classList.remove('hidden');
 
     function goBack(targetStation) {
-        if (audioContext && audioContext.state !== 'closed') {
+        if (isListening) {
             isListening = false;
-            audioContext.close();
+            if (audioContext) audioContext.close();
         }
         window.location.href = window.location.pathname + "?postaja=" + targetStation;
     }
 
-    // --- 2. SKRITA PONASTAVITEV (TROJNI KLIK NA ODŠTEVALNIK) ---
-    let tapCount = 0;
-    let tapTimeout;
-    function handleSecretReset() {
-        tapCount++;
-        clearTimeout(tapTimeout);
-        if (tapCount >= 3) {
-            tapCount = 0;
-            if (confirm("SKRITI MENI: Ponastavim igro in čas nazaj na 10:00?")) {
-                resetGame();
-            }
-        } else {
-            tapTimeout = setTimeout(() => { tapCount = 0; }, 800);
-        }
-    }
-
-    // --- 3. ODŠTEVALNIK ČASA (10 MINUT = 600 SEKUND) ---
+    // --- 2. ODŠTEVALNIK ČASA (10 MINUT = 600 SEKUND) ---
     const GAME_DURATION = 600 * 1000;
     let timerInterval;
-    let lastBeepSecond = -1;
+    let lastSecond = -1;
 
     function initTimer() {
         if (localStorage.getItem('bombDefused') === 'true') {
@@ -370,28 +389,40 @@
                 document.getElementById('timer').innerText = "00:00";
                 document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
                 document.getElementById('station-lose').classList.remove('hidden');
-                playExplosion();
+                playExplosionSound();
             } else {
-                const totalSeconds = Math.ceil(remaining / 1000);
                 const minutes = Math.floor(remaining / 60000);
                 const seconds = Math.floor((remaining % 60000) / 1000);
                 document.getElementById('timer').innerText = 
                     `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-                if (totalSeconds !== lastBeepSecond) {
-                    lastBeepSecond = totalSeconds;
-                    if (totalSeconds <= 10) {
-                        playTick(true);
-                        setTimeout(() => playTick(true), 450);
-                    } else if (totalSeconds <= 60) {
-                        playTick(true);
-                    } else {
-                        playTick(false);
+                if (seconds !== lastSecond) {
+                    lastSecond = seconds;
+                    const isUrgent = remaining <= 60000;
+                    playTick(isUrgent);
+                    if (remaining <= 10000) {
+                        setTimeout(() => playTick(true), 500);
                     }
                 }
             }
         }, 200);
     }
+
+    // Skriti trojni klik na odštevalnik za ponastavitev igre
+    let tapCount = 0;
+    let tapTimer = null;
+    document.getElementById('timer-bar').addEventListener('click', () => {
+        tapCount++;
+        clearTimeout(tapTimer);
+        if (tapCount >= 3) {
+            tapCount = 0;
+            if (confirm("Ponastavim igro in čas nazaj na 10:00?")) {
+                resetGame();
+            }
+        } else {
+            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+        }
+    });
 
     function resetGame() {
         localStorage.removeItem('bombEndTime');
@@ -403,14 +434,14 @@
 
     initTimer();
 
-    // --- 4. LOGIKA ZA 4. IN 5. POSTAJO ---
+    // --- 3. LOGIKA ZA 4. IN 5. POSTAJO ---
     function checkMath() {
         const ans = document.getElementById('math-answer').value;
-        if (ans === '8') {
-            playSuccess();
+        if (ans === '6') {
             document.getElementById('clue-4').style.display = 'block';
+            playSuccessSound();
         } else {
-            playError();
+            playErrorSound();
             alert("Napačen izračun! Preštej znova.");
         }
     }
@@ -419,14 +450,14 @@
         const code = document.getElementById('final-code').value;
         if (code === '4815') {
             clearInterval(timerInterval);
-            playWinFanfare();
             const savedTime = document.getElementById('timer').innerText;
             localStorage.setItem('bombDefused', 'true');
             localStorage.setItem('savedTime', savedTime);
             showWinScreen(savedTime);
+            playWinFanfare();
         } else {
-            playError();
             document.getElementById('code-error').style.display = 'block';
+            playErrorSound();
         }
     }
 
@@ -439,7 +470,7 @@
         document.getElementById('final-time').innerText = timeStr;
     }
 
-    // --- 5. PREPOZNAVA D-DUR AKORDA PREK MIKROFONA (WEB AUDIO API) ---
+    // --- 4. NATANČNA PREPOZNAVA D-DUR AKORDA PREK MIKROFONA ---
     let audioContext;
     let analyser;
     let microphone;
@@ -451,10 +482,17 @@
         const status = document.getElementById('mic-status');
         
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false
+                }
+            });
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioContext.createAnalyser();
-            analyser.fftSize = 8192;
+            analyser.fftSize = 16384; // Zelo visoka frekvenčna ločljivost (~2.7 Hz na bin)
+            analyser.smoothingTimeConstant = 0.5;
             
             microphone = audioContext.createMediaStreamSource(stream);
             microphone.connect(analyser);
@@ -467,7 +505,6 @@
             
             detectFrequencies();
         } catch (err) {
-            playError();
             status.innerText = "Napaka: Dostop do mikrofona je zavrnjen ali ni HTTPS povezave.";
             status.style.color = "var(--danger)";
         }
@@ -483,37 +520,79 @@
         const sampleRate = audioContext.sampleRate;
         const binSize = sampleRate / analyser.fftSize;
 
-        function getEnergyAtFreq(targetFreq) {
-            const minBin = Math.floor((targetFreq - 4) / binSize);
-            const maxBin = Math.ceil((targetFreq + 4) / binSize);
-            let maxVal = 0;
-            for (let i = minBin; i <= maxBin; i++) {
-                if (dataArray[i] > maxVal) maxVal = dataArray[i];
+        // Preveri vrh frekvence (peak) v ozkem oknu (+/- 3 Hz) in ga primerja z okolico (prominence)
+        // Govor ima širok spekter (vse sosednje frekvence so enako glasne), kitara pa ima ostre špice!
+        function getToneStrength(targetFreq) {
+            const centerBin = Math.round(targetFreq / binSize);
+            const windowBins = Math.max(1, Math.round(3.5 / binSize));
+            
+            let peakVal = 0;
+            for (let i = centerBin - windowBins; i <= centerBin + windowBins; i++) {
+                if (i >= 0 && i < bufferLength && dataArray[i] > peakVal) {
+                    peakVal = dataArray[i];
+                }
             }
-            return maxVal;
+
+            // Izračun povprečnega šuma okoli tona (12–25 Hz stran od tona)
+            const noiseStart = Math.round(12 / binSize);
+            const noiseEnd = Math.round(25 / binSize);
+            let noiseSum = 0;
+            let noiseCount = 0;
+            for (let offset = noiseStart; offset <= noiseEnd; offset++) {
+                if (centerBin - offset >= 0) {
+                    noiseSum += dataArray[centerBin - offset];
+                    noiseCount++;
+                }
+                if (centerBin + offset < bufferLength) {
+                    noiseSum += dataArray[centerBin + offset];
+                    noiseCount++;
+                }
+            }
+            const avgNoise = noiseCount > 0 ? noiseSum / noiseCount : 0;
+            
+            // Vrne dejansko izstopanje tona nad šumom ozadja
+            return {
+                peak: peakVal,
+                prominence: peakVal - avgNoise
+            };
         }
 
-        const d3 = getEnergyAtFreq(146.83);
-        const a3 = getEnergyAtFreq(220.00);
-        const d4 = getEnergyAtFreq(293.66);
-        const fs4 = getEnergyAtFreq(369.99);
+        // Glavne frekvence akorda D-dur na kitari:
+        // D3 (146.83 Hz), A3 (220.00 Hz), D4 (293.66 Hz), F#4 (369.99 Hz)
+        const d3 = getToneStrength(146.83);
+        const a3 = getToneStrength(220.00);
+        const d4 = getToneStrength(293.66);
+        const fs4 = getToneStrength(369.99);
 
-        const avgEnergy = (d3 + a3 + d4 + fs4) / 4;
-        document.getElementById('mic-level').style.width = Math.min(100, (avgEnergy / 200) * 100) + '%';
+        // Preverimo, ali vsak ton dejansko izstopa kot čista struna (peak > 125 in prominence > 35)
+        const hasD = (d3.peak > 120 && d3.prominence > 30) || (d4.peak > 125 && d4.prominence > 35);
+        const hasA = (a3.peak > 125 && a3.prominence > 35);
+        const hasFs = (fs4.peak > 125 && fs4.prominence > 35);
 
-        if (d3 > 130 && a3 > 130 && (d4 > 120 || fs4 > 120)) {
+        // Vizualni prikaz zaznanih tonov D, A in F#
+        document.getElementById('badge-d').classList.toggle('active', hasD);
+        document.getElementById('badge-a').classList.toggle('active', hasA);
+        document.getElementById('badge-fs').classList.toggle('active', hasFs);
+
+        const activeCount = (hasD ? 1 : 0) + (hasA ? 1 : 0) + (hasFs ? 1 : 0);
+        const progressPct = Math.min(100, (matchCounter / 20) * 100);
+        document.getElementById('mic-level').style.width = (activeCount === 3 ? progressPct : activeCount * 20) + '%';
+
+        // Vsi TRIJE toni akorda D-dur (D, A in F#) morajo zveneti hkrati!
+        if (hasD && hasA && hasFs) {
             matchCounter++;
-            if (matchCounter > 15) {
+            if (matchCounter >= 20) {
                 isListening = false;
-                playSuccess();
+                document.getElementById('mic-level').style.width = '100%';
                 document.getElementById('mic-status').innerText = "Akord D-dur uspešno zaznan!";
                 document.getElementById('mic-status').style.color = "var(--success)";
                 document.getElementById('clue-2').style.display = 'block';
+                playSuccessSound();
                 audioContext.close();
                 return;
             }
         } else {
-            matchCounter = Math.max(0, matchCounter - 1);
+            matchCounter = Math.max(0, matchCounter - 2);
         }
 
         requestAnimationFrame(detectFrequencies);
