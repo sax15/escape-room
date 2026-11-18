@@ -434,6 +434,42 @@
 
     initTimer();
 
+    // ============================================================
+    // === NOVO: SAMO ENA AKTIVNA STRAN (BroadcastChannel) ========
+    // ============================================================
+    // Ko se odpre nov zavihek (npr. po skeniranju novega NFC taga),
+    // javi vsem drugim zavihkom, naj se umaknejo. Stari zavihek
+    // ustavi odštevalnik, zvok in mikrofon ter se poskusi zapreti.
+    const tabChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('escape-room-tab') : null;
+    const myTabId = Date.now() + '-' + Math.random();
+
+    function retireThisTab() {
+        // Ustavi odštevalnik, mikrofon in zvok v tem (starem) zavihku
+        clearInterval(timerInterval);
+        isListening = false;
+        try { if (audioContext) audioContext.close(); } catch (e) {}
+        try { if (sfxCtx) sfxCtx.close(); } catch (e) {}
+
+        // Poskusi zapreti zavihek (deluje samo, če brskalnik dovoli)
+        window.close();
+
+        // Rezerva: če se zavihek ni zaprl, ga izprazni in pokaži obvestilo
+        document.body.innerHTML =
+            '<div style="text-align:center;margin-top:40vh;font-family:monospace;color:#8b949e;">' +
+            'Ta zavihek je zastarel.<br>Lahko ga zapreš.</div>';
+    }
+
+    if (tabChannel) {
+        tabChannel.onmessage = (e) => {
+            if (e.data && e.data.type === 'newTab' && e.data.id !== myTabId) {
+                retireThisTab();
+            }
+        };
+        // Ta zavihek se je pravkar odprl: javi vsem drugim, naj se umaknejo
+        tabChannel.postMessage({ type: 'newTab', id: myTabId });
+    }
+    // === KONEC NOVEGA ===
+
     // --- 3. LOGIKA ZA 4. IN 5. POSTAJO ---
     function checkMath() {
         const ans = document.getElementById('math-answer').value;
