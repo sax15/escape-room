@@ -1,60 +1,672 @@
-ČAS DO DETONACIJE
-10:00
-1. POSTAJA: AKTIVACIJA PROTOKOLA
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROTOKOL OMEGA - Deaktivacija</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --text-main: #c9d1d9;
+            --danger: #ff3b30;
+            --success: #3fb950;
+            --accent: #58a6ff;
+        }
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #timer-bar {
+            width: 100%;
+            max-width: 500px;
+            background-color: #210808;
+            border: 2px solid var(--danger);
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+            position: sticky;
+            top: 10px;
+            z-index: 100;
+            user-select: none;
+            cursor: pointer;
+        }
+        #timer {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--danger);
+            letter-spacing: 3px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: var(--card-bg);
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        h1, h2 {
+            color: var(--accent);
+            margin-top: 0;
+            font-size: 1.4rem;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        p {
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        .btn {
+            background-color: var(--accent);
+            color: #0d1117;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-family: inherit;
+        }
+        .btn:disabled {
+            background-color: #30363d;
+            color: #8b949e;
+        }
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        .btn-back {
+            background-color: transparent;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            margin-top: 25px;
+        }
+        .btn-back:hover {
+            color: var(--text-main);
+            border-color: #8b949e;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.5rem;
+            text-align: center;
+            background-color: #0d1117;
+            border: 1px solid var(--accent);
+            color: white;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-top: 10px;
+            font-family: inherit;
+        }
+        .clue-box {
+            background-color: rgba(63, 185, 80, 0.15);
+            border: 1px solid var(--success);
+            color: var(--success);
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+        .hidden { display: none; }
+        .visualizer {
+            height: 15px;
+            width: 100%;
+            background: #0d1117;
+            border-radius: 4px;
+            margin-top: 15px;
+            overflow: hidden;
+            border: 1px solid #30363d;
+        }
+        #mic-level {
+            height: 100%;
+            width: 0%;
+            background: var(--success);
+            transition: width 0.1s;
+        }
+        .note-indicators {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 8px;
+        }
+        .note-badge {
+            flex: 1;
+            text-align: center;
+            padding: 6px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            color: #8b949e;
+        }
+        .note-badge.active {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(63, 185, 80, 0.15);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
 
-POZOR! V tem prostoru je bila aktivirana eksperimentalna naprava. Do detonacije imate natanko 10 minut.
+    <div id="timer-bar" title="Triklik za ponastavitev">
+        <div style="font-size: 0.8rem; color: #ff8b85;">ČAS DO DETONACIJE</div>
+        <div id="timer">10:00</div>
+    </div>
 
-Varnostni sistem je razbil kodo za deaktivacijo na štiri dele. Za reševanje iščite bele NFC točke v prostoru.
-------------------------------------
-UGANKA 1: Ves dan se vrtim in kažem številke, a če me pogledaš, boš vedno vedel le to, koliko je bilo prej, nikoli pa, koliko je zdaj. Poglej na njeno hrbtno stran.
-2. POSTAJA: ZVOČNA FREKVENCA
+    <div class="container">
+        <!-- POSTAJA 1 -->
+        <div id="station-1" class="station hidden">
+            <h2>1. POSTAJA: AKTIVACIJA PROTOKOLA</h2>
+            <p><strong>POZOR!</strong> V tem prostoru je bila aktivirana eksperimentalna naprava. Do detonacije imate natanko 10 minut.</p>
+            <p>Varnostni sistem je razbil kodo za deaktivacijo na <strong>štiri dele</strong>. Za reševanje iščite bele NFC točke v prostoru.</p>
+            <hr style="border-color: #30363d;">
+            <p><strong>UGANKA 1:</strong> Ves dan se vrtim in kažem številke, a če me pogledaš, boš vedno vedel le to, koliko je bilo prej, nikoli pa, koliko je zdaj. Poglej na njeno hrbtno stran.</p>
+        </div>
 
-Odlično, prvi sloj je prebit. Naprava se odziva na specifične akustične vibracije.
+        <!-- POSTAJA 2 (KITARA) -->
+        <div id="station-2" class="station hidden">
+            <h2>2. POSTAJA: ZVOČNA FREKVENCA</h2>
+            <p>Odlično, prvi sloj je prebit. Naprava se odziva na specifične akustične vibracije.</p>
+            <p><strong>UGANKA 2:</strong> Vzemi kitaro v kotu sobe. Sistem zahteva natančno zvočno frekvenco akorda <strong>D-dur</strong>. Pritisni spodnji gumb in zaigraj akord jasno ter glasno.</p>
+            
+            <button id="start-mic-btn" class="btn" onclick="startChordDetection()">VKLOPITE MIKROFON</button>
+            <div class="visualizer"><div id="mic-level"></div></div>
+            <div class="note-indicators">
+                <div id="badge-d" class="note-badge">Ton D</div>
+                <div id="badge-a" class="note-badge">Ton A</div>
+                <div id="badge-fs" class="note-badge">Ton F#</div>
+            </div>
+            <p id="mic-status" style="font-size: 0.9rem; color: #8b949e; text-align: center;">Mikrofon je izklopljen.</p>
 
-UGANKA 2: Vzemi kitaro v kotu sobe. Sistem zahteva natančno zvočno frekvenco akorda D-dur. Pritisni spodnji gumb in zaigraj akord jasno ter glasno.
-VKLOPITE MIKROFON 
-Ton D
-Ton A
-Ton F#
+            <div id="clue-2" class="clue-box">
+                <strong>FREKVENCA POTRJENA!</strong><br>
+                Druga številka kode je: <strong style="font-size: 1.5rem;">8</strong><br><br>
+                <em>Namig za naprej:</em> Naslednji NFC oddajnik se skriva pod znanjem, ki tehta največ. Poišči najdebelejšo knjigo na polici.
+            </div>
 
-Mikrofon je izklopljen.
-FREKVENCA POTRJENA!
-Druga številka kode je: 8
+            <button class="btn btn-back" onclick="goBack('1')">← NAZAJ NA 1. POSTAJO</button>
+        </div>
 
-Namig za naprej: Naslednji NFC oddajnik se skriva pod znanjem, ki tehta največ. Poišči najdebelejšo knjigo na polici. 
-← NAZAJ NA 1. POSTAJO 
-3. POSTAJA: SKRITI VZOREC
+        <!-- POSTAJA 3 -->
+        <div id="station-3" class="station hidden">
+            <h2>3. POSTAJA: SKRITI VZOREC</h2>
+            <p>Čas neusmiljeno teče. Naprava je skrila svoje sledi pred navadnim očesom.</p>
+            <p><strong>UGANKA 3:</strong> V škatli na omari je skrita UV-svetilka. Ugasni glavno luč v prostoru in z njo osvetli papir prilepljen na steni v splanici. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.</p>
 
-Čas neusmiljeno teče. Naprava je skrila svoje sledi pred navadnim očesom.
+            <button class="btn btn-back" onclick="goBack('2')">← NAZAJ NA 2. POSTAJO</button>
+        </div>
 
-UGANKA 3: V škatli na omari je skrita UV-svetilka. Ugasni glavno luč v prostoru in z njo osvetli papir prilepljen na steni v splanici. Tam boš našel tretjo številko kode in simbol, ki ti pove, kje se skriva naslednja NFC točka.
-← NAZAJ NA 2. POSTAJO 
-4. POSTAJA: LOGIČNA ZANKA
+        <!-- POSTAJA 4 -->
+        <div id="station-4" class="station hidden">
+            <h2>4. POSTAJA: LOGIČNA ZANKA</h2>
+            <p>Mehanski senzorji zaznavajo napačno obremenitev. Uravnovesite sistem pred zaklepom.</p>
+            <p><strong>UGANKA 4:</strong> Preštej vse stole v sobi (X) in jih pomnoži s številom oken (Y). Rezultat vpiši spodaj:</p>
+            
+            <input type="number" id="math-answer" placeholder="Vnesi rezultat...">
+            <button class="btn" onclick="checkMath()">POTRDI REZULTAT</button>
 
-Mehanski senzorji zaznavajo napačno obremenitev. Uravnovesite sistem pred zaklepom.
+            <div id="clue-4" class="clue-box">
+                <strong>SENZORJI SO MIRNI!</strong><br>
+                Četrta številka kode je: <strong style="font-size: 1.5rem;">5</strong><br><br>
+                <em>Namig za naprej:</em> Sem varuh okusov in sovražnik toplote, s svojim tihim dihanjem krotim minute, da ne bi sadje predčasno zgnilo in bi se mleko v kislobo spremenilo. V mojem trebuhu vlada večni hlad, v katerem skrit je tvoj okusni zaklad.
+            </div>
 
-UGANKA 4: Preštej vse stole v sobi (X) in jih pomnoži s številom oken (Y). Rezultat vpiši spodaj:
-POTRDI REZULTAT 
-SENZORJI SO MIRNI!
-Četrta številka kode je: 5
+            <button class="btn btn-back" onclick="goBack('3')">← NAZAJ NA 3. POSTAJO</button>
+        </div>
 
-Namig za naprej: Sem varuh okusov in sovražnik toplote, s svojim tihim dihanjem krotim minute, da ne bi sadje predčasno zgnilo in bi se mleko v kislobo spremenilo. V mojem trebuhu vlada večni hlad, v katerem skrit je tvoj okusni zaklad. 
-← NAZAJ NA 3. POSTAJO 
-5. POSTAJA: KONČNA DEAKTIVACIJA
+        <!-- POSTAJA 5 -->
+        <div id="station-5" class="station hidden">
+            <h2>5. POSTAJA: KONČNA DEAKTIVACIJA</h2>
+            <p>Vse varnostne ovire so odstranjene! Vnesi 4-mestno kodo, ki si jo zbral na postajah od 1 do 4.</p>
+            
+            <input type="number" id="final-code" placeholder="****" maxlength="4">
+            <button class="btn btn-danger" onclick="checkFinalCode()">DEAKTIVIRAJ BOMBO</button>
+            <p id="code-error" style="color: var(--danger); display: none; text-align: center;">NAPAČNA KODA! POSKUSI ZNOVA!</p>
 
-Vse varnostne ovire so odstranjene! Vnesi 4-mestno kodo, ki si jo zbral na postajah od 1 do 4.
-DEAKTIVIRAJ BOMBO 
+            <button class="btn btn-back" onclick="goBack('4')">← NAZAJ NA 4. POSTAJO</button>
+        </div>
 
-NAPAČNA KODA! POSKUSI ZNOVA!
-← NAZAJ NA 4. POSTAJO 
-NAPRAVA DEAKTIVIRANA!
+        <!-- ZMAGA / PORAZ -->
+        <div id="station-win" class="station hidden" style="text-align: center;">
+            <h2 style="color: var(--success);">NAPRAVA DEAKTIVIRANA!</h2>
+            <p>Čestitamo! Uspešno ste rešili prostor in sebe.</p>
+            <p>Vaš preostali čas: <strong id="final-time" style="font-size: 1.5rem; color: var(--success);"></strong></p>
+            <button class="btn" onclick="resetGame()">PONASTAVI IGRO</button>
+        </div>
 
-Čestitamo! Uspešno ste rešili prostor in sebe.
+        <div id="station-lose" class="station hidden" style="text-align: center;">
+            <h2 style="color: var(--danger);">DETONACIJA!</h2>
+            <p>Čas je potekel. Varnostni sistem je sprožil napravo.</p>
+            <button class="btn btn-danger" onclick="resetGame()">POSKUSI ZNOVA</button>
+        </div>
+    </div>
 
-Vaš preostali čas: 
-PONASTAVI IGRO 
-DETONACIJA!
+<script>
+    // --- ZVOČNI UČINKI (WEB AUDIO API) ---
+    let sfxCtx = null;
 
-Čas je potekel. Varnostni sistem je sprožil napravo.
-POSKUSI ZNOVA 
+    function getSfxContext() {
+        if (!sfxCtx) {
+            sfxCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (sfxCtx.state === 'suspended') {
+            sfxCtx.resume();
+        }
+        return sfxCtx;
+    }
 
+    document.addEventListener('touchstart', getSfxContext, { once: true });
+    document.addEventListener('click', getSfxContext, { once: true });
+
+    function playTone(freq, type, duration, vol = 0.15, delay = 0) {
+        try {
+            const ctx = getSfxContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + delay);
+            
+            gain.gain.setValueAtTime(vol, ctx.currentTime + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + duration);
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            
+            osc.start(ctx.currentTime + delay);
+            osc.stop(ctx.currentTime + delay + duration);
+        } catch (e) {}
+    }
+
+    function playTick(isUrgent) {
+        playTone(isUrgent ? 1200 : 880, 'sine', 0.06, isUrgent ? 0.18 : 0.08);
+    }
+
+    function playSuccessSound() {
+        playTone(523.25, 'triangle', 0.25, 0.2, 0);
+        playTone(659.25, 'triangle', 0.25, 0.2, 0.12);
+        playTone(783.99, 'triangle', 0.4, 0.2, 0.24);
+    }
+
+    function playErrorSound() {
+        playTone(180, 'sawtooth', 0.2, 0.2, 0);
+        playTone(140, 'sawtooth', 0.35, 0.2, 0.18);
+    }
+
+    function playWinFanfare() {
+        const notes = [523.25, 659.25, 783.99, 1046.50];
+        notes.forEach((n, idx) => {
+            playTone(n, 'triangle', 0.45, 0.22, idx * 0.15);
+        });
+    }
+
+    function playExplosionSound() {
+        try {
+            const ctx = getSfxContext();
+            playTone(600, 'sawtooth', 0.3, 0.25, 0);
+            playTone(400, 'sawtooth', 0.3, 0.25, 0.3);
+
+            const bufferSize = ctx.sampleRate * 1.8;
+            const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                data[i] = Math.random() * 2 - 1;
+            }
+            const noise = ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(600, ctx.currentTime + 0.6);
+            filter.frequency.exponentialRampToValueAtTime(40, ctx.currentTime + 2.3);
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.6, ctx.currentTime + 0.6);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.4);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            noise.start(ctx.currentTime + 0.6);
+        } catch (e) {}
+    }
+
+    // --- 1. UPRAVLJANJE POSTAJ PREK URL PARAMETRA ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const station = urlParams.get('postaja') || '1';
+    
+    document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+    const activeEl = document.getElementById('station-' + station);
+    if (activeEl) activeEl.classList.remove('hidden');
+
+    function goBack(targetStation) {
+        if (isListening) {
+            isListening = false;
+            if (audioContext) audioContext.close();
+        }
+        window.location.href = window.location.pathname + "?postaja=" + targetStation;
+    }
+
+    // --- 2. ODŠTEVALNIK ČASA (10 MINUT = 600 SEKUND) ---
+    const GAME_DURATION = 600 * 1000;
+    let timerInterval;
+    let lastSecond = -1;
+
+    function initTimer() {
+        if (localStorage.getItem('bombDefused') === 'true') {
+            showWinScreen(localStorage.getItem('savedTime'));
+            return;
+        }
+
+        let endTime = localStorage.getItem('bombEndTime');
+        
+        if (!endTime || (station === '1' && !sessionStorage.getItem('started'))) {
+            endTime = Date.now() + GAME_DURATION;
+            localStorage.setItem('bombEndTime', endTime);
+            sessionStorage.setItem('started', 'true');
+        }
+
+        timerInterval = setInterval(() => {
+            const now = Date.now();
+            const remaining = endTime - now;
+
+            if (remaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timer').innerText = "00:00";
+                document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+                document.getElementById('station-lose').classList.remove('hidden');
+                playExplosionSound();
+            } else {
+                const minutes = Math.floor(remaining / 60000);
+                const seconds = Math.floor((remaining % 60000) / 1000);
+                document.getElementById('timer').innerText = 
+                    `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (seconds !== lastSecond) {
+                    lastSecond = seconds;
+                    const isUrgent = remaining <= 60000;
+                    playTick(isUrgent);
+                    if (remaining <= 10000) {
+                        setTimeout(() => playTick(true), 500);
+                    }
+                }
+            }
+        }, 200);
+    }
+
+    // Skriti trojni klik na odštevalnik za ponastavitev igre
+    let tapCount = 0;
+    let tapTimer = null;
+    document.getElementById('timer-bar').addEventListener('click', () => {
+        tapCount++;
+        clearTimeout(tapTimer);
+        if (tapCount >= 3) {
+            tapCount = 0;
+            if (confirm("Ponastavim igro in čas nazaj na 10:00?")) {
+                resetGame();
+            }
+        } else {
+            tapTimer = setTimeout(() => { tapCount = 0; }, 800);
+        }
+    });
+
+    function resetGame() {
+        localStorage.removeItem('bombEndTime');
+        localStorage.removeItem('bombDefused');
+        localStorage.removeItem('savedTime');
+        sessionStorage.removeItem('started');
+        window.location.href = window.location.pathname + "?postaja=1";
+    }
+
+    initTimer();
+
+    // ============================================================
+    // === NOVO: SAMO ENA AKTIVNA STRAN (localStorage žeton) ======
+    // ============================================================
+    // Vsak zavihek ob nalaganju v localStorage zapiše svoj ID kot
+    // "aktivni zavihek". Vsi drugi zavihki to opazijo (1) prek
+    // 'storage' dogodka, (2) s periodičnim preverjanjem, (3) takoj
+    // ko pridejo nazaj v ospredje (Chrome na Androidu zamrzne
+    // zavihke v ozadju) in se umaknejo: ustavijo odštevalnik,
+    // zvok in mikrofon.
+    const ACTIVE_TAB_KEY = 'activeTabId';
+    const myTabId = Date.now() + '-' + Math.random();
+    let tabRetired = false;
+
+    function claimActiveTab() {
+        try { localStorage.setItem(ACTIVE_TAB_KEY, myTabId); } catch (e) {}
+    }
+
+    function retireThisTab() {
+        if (tabRetired) return;
+        tabRetired = true;
+
+        // Ustavi odštevalnik, mikrofon in zvok v tem (starem) zavihku
+        clearInterval(timerInterval);
+        clearInterval(activeCheckInterval);
+        isListening = false;
+        try { if (audioContext) audioContext.close(); } catch (e) {}
+        try { if (sfxCtx) sfxCtx.close(); } catch (e) {}
+
+        // Poskusi zapreti zavihek (deluje samo, če brskalnik dovoli)
+        window.close();
+
+        // Rezerva: če se zavihek ni zaprl, ga izprazni in pokaži obvestilo
+        document.body.innerHTML =
+            '<div style="text-align:center;margin-top:40vh;font-family:monospace;color:#8b949e;">' +
+            'Ta zavihek je zastarel.<br>Lahko ga zapreš.</div>';
+    }
+
+    function checkActiveTab() {
+        if (tabRetired) return;
+        let activeId = null;
+        try { activeId = localStorage.getItem(ACTIVE_TAB_KEY); } catch (e) {}
+        if (activeId && activeId !== myTabId) {
+            retireThisTab();
+        }
+    }
+
+    // Ta zavihek se je pravkar odprl: postane aktiven
+    claimActiveTab();
+
+    // (1) Takojšen odziv, ko drug zavihek spremeni žeton
+    window.addEventListener('storage', (e) => {
+        if (e.key === ACTIVE_TAB_KEY) checkActiveTab();
+    });
+
+    // (2) Periodično preverjanje (ujame zavihke, ki še tečejo)
+    const activeCheckInterval = setInterval(checkActiveTab, 500);
+
+    // (3) Preverjanje ob vrnitvi v ospredje (zavihki, ki so bili zamrznjeni)
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkActiveTab();
+    });
+    window.addEventListener('focus', checkActiveTab);
+
+    // Vrnitev prek gumba Nazaj (bfcache): uporabnik gleda to stran, zato jo naredi aktivno
+    window.addEventListener('pageshow', (e) => {
+        if (e.persisted) claimActiveTab();
+    });
+    // === KONEC NOVEGA ===
+
+    // --- 3. LOGIKA ZA 4. IN 5. POSTAJO ---
+    function checkMath() {
+        const ans = document.getElementById('math-answer').value;
+        if (ans === '8') {
+            document.getElementById('clue-4').style.display = 'block';
+            playSuccessSound();
+        } else {
+            playErrorSound();
+            alert("Napačen izračun! Preštej znova.");
+        }
+    }
+
+    function checkFinalCode() {
+        const code = document.getElementById('final-code').value;
+        if (code === '4815') {
+            clearInterval(timerInterval);
+            const savedTime = document.getElementById('timer').innerText;
+            localStorage.setItem('bombDefused', 'true');
+            localStorage.setItem('savedTime', savedTime);
+            showWinScreen(savedTime);
+            playWinFanfare();
+        } else {
+            document.getElementById('code-error').style.display = 'block';
+            playErrorSound();
+        }
+    }
+
+    function showWinScreen(timeStr) {
+        document.querySelectorAll('.station').forEach(el => el.classList.add('hidden'));
+        document.getElementById('station-win').classList.remove('hidden');
+        document.getElementById('timer-bar').style.borderColor = 'var(--success)';
+        document.getElementById('timer').style.color = 'var(--success)';
+        document.getElementById('timer').innerText = timeStr;
+        document.getElementById('final-time').innerText = timeStr;
+    }
+
+    // --- 4. NATANČNA PREPOZNAVA D-DUR AKORDA PREK MIKROFONA ---
+    let audioContext;
+    let analyser;
+    let microphone;
+    let isListening = false;
+    let matchCounter = 0;
+
+    async function startChordDetection() {
+        const btn = document.getElementById('start-mic-btn');
+        const status = document.getElementById('mic-status');
+        
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                audio: {
+                    echoCancellation: false,
+                    noiseSuppression: false,
+                    autoGainControl: false
+                }
+            });
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioContext.createAnalyser();
+            analyser.fftSize = 16384; // Zelo visoka frekvenčna ločljivost (~2.7 Hz na bin)
+            analyser.smoothingTimeConstant = 0.5;
+            
+            microphone = audioContext.createMediaStreamSource(stream);
+            microphone.connect(analyser);
+            
+            isListening = true;
+            btn.disabled = true;
+            btn.innerText = "POSLUŠAM KITARO...";
+            status.innerText = "Zaigraj D-dur akord blizu telefona!";
+            status.style.color = "var(--accent)";
+            
+            detectFrequencies();
+        } catch (err) {
+            status.innerText = "Napaka: Dostop do mikrofona je zavrnjen ali ni HTTPS povezave.";
+            status.style.color = "var(--danger)";
+        }
+    }
+
+    function detectFrequencies() {
+        if (!isListening) return;
+
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+        analyser.getByteFrequencyData(dataArray);
+
+        const sampleRate = audioContext.sampleRate;
+        const binSize = sampleRate / analyser.fftSize;
+
+        // Preveri vrh frekvence (peak) v ozkem oknu (+/- 3 Hz) in ga primerja z okolico (prominence)
+        // Govor ima širok spekter (vse sosednje frekvence so enako glasne), kitara pa ima ostre špice!
+        function getToneStrength(targetFreq) {
+            const centerBin = Math.round(targetFreq / binSize);
+            const windowBins = Math.max(1, Math.round(3.5 / binSize));
+            
+            let peakVal = 0;
+            for (let i = centerBin - windowBins; i <= centerBin + windowBins; i++) {
+                if (i >= 0 && i < bufferLength && dataArray[i] > peakVal) {
+                    peakVal = dataArray[i];
+                }
+            }
+
+            // Izračun povprečnega šuma okoli tona (12–25 Hz stran od tona)
+            const noiseStart = Math.round(12 / binSize);
+            const noiseEnd = Math.round(25 / binSize);
+            let noiseSum = 0;
+            let noiseCount = 0;
+            for (let offset = noiseStart; offset <= noiseEnd; offset++) {
+                if (centerBin - offset >= 0) {
+                    noiseSum += dataArray[centerBin - offset];
+                    noiseCount++;
+                }
+                if (centerBin + offset < bufferLength) {
+                    noiseSum += dataArray[centerBin + offset];
+                    noiseCount++;
+                }
+            }
+            const avgNoise = noiseCount > 0 ? noiseSum / noiseCount : 0;
+            
+            // Vrne dejansko izstopanje tona nad šumom ozadja
+            return {
+                peak: peakVal,
+                prominence: peakVal - avgNoise
+            };
+        }
+
+        // Glavne frekvence akorda D-dur na kitari:
+        // D3 (146.83 Hz), A3 (220.00 Hz), D4 (293.66 Hz), F#4 (369.99 Hz)
+        const d3 = getToneStrength(146.83);
+        const a3 = getToneStrength(220.00);
+        const d4 = getToneStrength(293.66);
+        const fs4 = getToneStrength(369.99);
+
+        // Preverimo, ali vsak ton dejansko izstopa kot čista struna (peak > 125 in prominence > 35)
+        const hasD = (d3.peak > 120 && d3.prominence > 30) || (d4.peak > 125 && d4.prominence > 35);
+        const hasA = (a3.peak > 125 && a3.prominence > 35);
+        const hasFs = (fs4.peak > 125 && fs4.prominence > 35);
+
+        // Vizualni prikaz zaznanih tonov D, A in F#
+        document.getElementById('badge-d').classList.toggle('active', hasD);
+        document.getElementById('badge-a').classList.toggle('active', hasA);
+        document.getElementById('badge-fs').classList.toggle('active', hasFs);
+
+        const activeCount = (hasD ? 1 : 0) + (hasA ? 1 : 0) + (hasFs ? 1 : 0);
+        const progressPct = Math.min(100, (matchCounter / 20) * 100);
+        document.getElementById('mic-level').style.width = (activeCount === 3 ? progressPct : activeCount * 20) + '%';
+
+        // Vsi TRIJE toni akorda D-dur (D, A in F#) morajo zveneti hkrati!
+        if (hasD && hasA && hasFs) {
+            matchCounter++;
+            if (matchCounter >= 20) {
+                isListening = false;
+                document.getElementById('mic-level').style.width = '100%';
+                document.getElementById('mic-status').innerText = "Akord D-dur uspešno zaznan!";
+                document.getElementById('mic-status').style.color = "var(--success)";
+                document.getElementById('clue-2').style.display = 'block';
+                playSuccessSound();
+                audioContext.close();
+                return;
+            }
+        } else {
+            matchCounter = Math.max(0, matchCounter - 2);
+        }
+
+        requestAnimationFrame(detectFrequencies);
+    }
+</script>
+
+</body>
+</html>
